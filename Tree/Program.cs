@@ -1,28 +1,57 @@
-﻿using System;
+﻿using CsvHelper;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Tree
 {
 
+    public class CsvObject
+    {
+        public string Posts { get; set; }
+        public string Member { get; set; }
+        public int Comments { get; set; }
+        public int Reactions { get; set; }
+        public int Views { get; set; }
+        public string Link { get; set; }
+    }
+
+    public class Filenames
+    {
+        public string CommentId { get; set; }
+        public string PostId { get; set; }
+        public string PostContent { get; set; }
+        public string ParentCommentId { get; set; }
+        public string CommentDate { get; set; }
+        public string CommentText { get; set; }
+        public string CommentAuthor { get; set; }
+        public string CommentAuthorId { get; set; }
+        public string CommentLikes { get; set; }
+        public string CommentComments { get; set; }
+        public string Attachment { get; set; }
+        public string GroupId { get; set; }
+        public string GroupName { get; set; }
+    }
+
     public class Comment
     {
-        // Tree elements
-        public Comment Parent { get; set; }
-        public List<Comment> Children { get; set; }
-
-
         public string Id { get; set; }
         public Member Author { get; set; }
         public string CommentText { get; set; }
 
+        // Tree elements
+        public Comment Parent { get; set; }
+        public List<Comment> Children { get; set; }
     }
 
     public class Member
     {
         public string Id { get; set; }
         public string Name { get; set; }
+        public string Url { get; set; }
     }
 
 
@@ -42,40 +71,41 @@ namespace Tree
             heads = new List<Comment>();
             var regex = new Regex("([0-9]+)/$");
 
-            using (var sr = new StreamReader(@"names.csv"))
-            {
-                string line;
-                // Skip the first we don't care
-                sr.ReadLine();
-                while ((line = sr.ReadLine()) != null)
-                {
+            Console.WriteLine("Getting names from names.csv");
 
-                    var splitLine = line.Split(',');
+            using (var sr = new StreamReader(@"names.csv"))
+            using (var cs = new CsvReader(sr))
+            {
+                var records = cs.GetRecords<CsvObject>();
+                foreach (var rec in records)
+                {
                     var member = new Member
                     {
                         Id = "na",
-                        Name = splitLine[0],
-
+                        Name = rec.Member,
                     };
-                        
-                    var idRegexr = regex.Matches(splitLine[4]);
+
+                    var idRegexr = regex.Matches(rec.Link);
 
                     var id = idRegexr[0].Groups[1].Value;
-                    var post = NewComment(member, id, splitLine[0]);
+                    var post = NewComment(member, id, rec.Posts);
+                    post.Author.Url = rec.Link;
 
                     heads.Add(post);
                 }
             }
+            Console.WriteLine("Loaded names from names.csv");
+            Console.WriteLine("Getting data from filename.csv");
 
             using (var sr = new StreamReader(@"filename.csv"))
+            using (var cs = new CsvReader(sr))
             {
-                string line;
-                while ((line = sr.ReadLine()) != null)
+                var records = cs.GetRecords<Filenames>();
+                foreach (var rec in records)
                 {
-                    var splitLine = line.Split(',');
-                    var newComment = NewComment(anon, splitLine[0], splitLine[5]);
+                    var newComment = NewComment(anon, rec.CommentId, rec.CommentText);
 
-                    var parentId = (splitLine[3] == string.Empty) ? splitLine[1].Split('_')[1] : splitLine[3];
+                    var parentId = (rec.ParentCommentId == string.Empty) ? rec.PostId.Split('_')[1] : rec.ParentCommentId;
 
                     foreach (var head in heads)
                     {
@@ -83,6 +113,43 @@ namespace Tree
                     }
                 }
             }
+
+            Console.WriteLine("Loaded data from filename.csv");
+
+            using (var sw = new StreamWriter("blah.html"))
+            {
+                foreach (var head in heads)
+                {
+                    sw.Write(PrettyPrint(head));
+                }
+
+                sw.Flush();
+            }
+
+            //using (var sw = new StreamWriter(@"test.json"))
+            //{
+            //    sw.WriteLine(JsonConvert.SerializeObject(heads));
+            //    sw.Flush();
+            //}
+
+            Console.WriteLine("All Done :)");
+        }
+
+
+        public static string PrettyPrint(Comment head)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine(@"<ul>");
+            sb.AppendLine($"<li>{head.CommentText}</li>");
+
+            foreach (var child in head.Children)
+            {
+                sb.Append(PrettyPrint(child));
+            }
+            sb.AppendLine(@"</ul>");
+
+            return sb.ToString();
         }
 
         public static void InsertChild(string parentId, Comment head, Comment child)
@@ -101,7 +168,8 @@ namespace Tree
 
         public static void InsertNode(Comment parent, Comment child)
         {
-            child.Parent = parent;
+            // Avoid self referenced loop
+            //child.Parent = parent;
             parent.Children.Add(child);
         }
 
