@@ -99,6 +99,7 @@
     <Compile Include="Services\LoadComments.cs" />
     <Compile Include="Services\LoadData.cs" />
     <Compile Include="Services\LoadMembers.cs" />
+    <Compile Include="Services\OutputService.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
