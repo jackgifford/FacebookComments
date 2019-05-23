@@ -9,7 +9,7 @@ using System.Windows;
 // associated with an assembly.
 [assembly: AssemblyTitle("Tree.Gui")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyConfiguration("")]   
 [assembly: AssemblyCompany("Parfrac")]
 [assembly: AssemblyProduct("Tree.Gui")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
