@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tree.Gui.Models;
 
@@ -15,7 +16,7 @@ namespace Tree.Gui.Services
             var dataStream = new FileStream(filePath, FileMode.Open);
             var recs = LoadFromStream<CsvObject>(dataStream);
 
-            var members = new Member[recs.Count()];
+            var members = new Comment[recs.Count()];
 
             // This is likely to get much more complicated.
 
@@ -24,9 +25,31 @@ namespace Tree.Gui.Services
             int i = 0;
             foreach (var rec in recs)
             {
-                members[i] = MapToMember(rec);
+                members[i] = MapHeads(rec);
                 i += 1;
             }
+        }
+
+        private Comment MapHeads(CsvObject rec)
+        {
+            var member = MapToMember(rec);
+
+            var regex = new Regex("([0-9]+)/$");
+
+            var idRegexr = regex.Matches(rec.Link);
+            var id = idRegexr[0].Groups[1].Value;
+            var post = new Comment
+            {
+                Author = member,
+                Id = id,
+                CommentText = rec.Posts,
+                ParentCommentId = string.Empty,
+                Children = new List<Comment>()
+            };
+
+            post.Author.Url = rec.Link;
+
+            return post;
         }
 
         private Member MapToMember(CsvObject rec) => new Member

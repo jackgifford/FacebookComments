@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CsvHelper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,9 +18,7 @@ namespace Tree.Gui.Services
             using (var sr = new StreamReader(dataStream))
             using (var cs = new CsvReader(sr))
             {
-                var records = cs.GetRecords<T>();
-
-                return records; 
+                return cs.GetRecords<T>();
             }
         }
     }
