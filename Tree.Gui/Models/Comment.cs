@@ -11,6 +11,8 @@ namespace Tree.Gui.Models
         public string Id { get; set; }
         public Member Author { get; set; }
         public string CommentText { get; set; }
+        public string ParentCommentId { get; set; }
+
 
         // Tree elements
         public Comment Parent { get; set; }
