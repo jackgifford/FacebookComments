@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Tree.Gui.Models;
@@ -17,6 +18,14 @@ namespace Tree.Gui.Services
         {
             Html,
             Json, // This is a lie ;)
+        }
+
+        public void Print(IEnumerable<Comment> head, string filePath, PrintFormats selected)
+        {
+            foreach (var comment in head)
+            {
+                Print(comment, filePath, selected);
+            }
         }
 
         public void Print(Comment head, string filePath, PrintFormats selected)
@@ -49,7 +58,7 @@ namespace Tree.Gui.Services
             var sb = new StringBuilder();
 
             sb.AppendLine(@"<ul>");
-            sb.AppendLine($"<li>{head.CommentText}</li>");
+            sb.AppendLine($"<li>{WebUtility.HtmlEncode(head.CommentText)}</li>");
 
             foreach (var child in head.Children)
             {
