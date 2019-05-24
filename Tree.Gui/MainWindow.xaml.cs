@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Tree.Gui.Models;
+using Tree.Gui.Services;
 
 namespace Tree.Gui
 {
@@ -20,8 +22,24 @@ namespace Tree.Gui
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        /// Services
+        private readonly LoadCommentsService _loadComments;
+        private readonly LoadMemberService _loadMembers;
+        private readonly OutputService _outputService;
+        private readonly BuildCommentsService _buildComments;
+
+        ///  State
+        private Comment[] _heads;
+
+        public MainWindow(LoadCommentsService loadComments,
+            LoadMemberService loadMembers,
+            OutputService outputService,
+            BuildCommentsService buildComments)
         {
+            _loadComments = loadComments;
+            _loadMembers = loadMembers;
+            _outputService = outputService;
+            _buildComments = buildComments;
             InitializeComponent();
         }
 
@@ -46,7 +64,9 @@ namespace Tree.Gui
 
         private void Calc_Click(object sender, RoutedEventArgs e)
         {
-            
+            var comments = _loadComments.LoadComments(filePath);
+            _buildComments.BuildComments(_heads, comments);
+            _outputService.Print(_heads, filePath, OutputService.PrintFormats.Html);
         }
     }
 }
