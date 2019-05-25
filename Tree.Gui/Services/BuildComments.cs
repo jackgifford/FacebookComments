@@ -14,7 +14,7 @@ namespace Tree.Gui.Services
         {
             foreach (var comment in comments)
             {
-                var parent = heads.First(x => x.Id == comment.ParentCommentId);
+                var parent = heads.FirstOrDefault(x => x.Id == comment.ParentCommentId);
 
                 if (parent != null)
                     parent.Children.Add(comment);

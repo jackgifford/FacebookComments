@@ -20,12 +20,17 @@ namespace Tree.Gui.Services
             Json, // This is a lie ;)
         }
 
-        public void Print(IEnumerable<Comment> head, string filePath, PrintFormats selected)
+        public void Print(IEnumerable<Comment> head, Stream filesStream, PrintFormats selected)
         {
+            var sw = new StreamWriter(filesStream);
+
             foreach (var comment in head)
             {
-                Print(comment, filePath, selected);
+                sw.Write(PrettyPrint(comment));
             }
+
+            sw.Flush();
+            sw.Dispose();
         }
 
         public void Print(Comment head, string filePath, PrintFormats selected)

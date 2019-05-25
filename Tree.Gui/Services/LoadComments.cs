@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CsvHelper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,21 +11,23 @@ namespace Tree.Gui.Services
 {
     public class LoadCommentsService : LoadDataService
     {
-        public Comment[] LoadComments(string filePath)
+        public IEnumerable<Comment> LoadComments(string filePath)
         {
             var dataStream = new FileStream(filePath, FileMode.Open);
-            var recs = LoadFromStream<Filenames>(dataStream);
-
-            var comments = new Comment[recs.Count()];
-
-            int i = 0;
-            foreach (var rec in recs)
+            using (var sr = new StreamReader(dataStream))
+            using (var cs = new CsvReader(sr))
             {
-                comments[i] = MapToComment(rec);
-                i += 1;
-            }
+                var recs = cs.GetRecords<Filenames>(); // LoadFromStream<Filenames>(dataStream);
+                var comments = new List<Comment>();
 
-            return comments;
+                foreach (var rec in recs)
+                {
+                    comments.Add(MapToComment(rec));
+                }
+
+                return comments;
+
+            }
         }
 
         private Comment MapToComment(Filenames rec) => new Comment

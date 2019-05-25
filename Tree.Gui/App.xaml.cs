@@ -7,6 +7,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Tree.Gui.Services;
 
 namespace Tree.Gui
 {
@@ -40,6 +41,10 @@ namespace Tree.Gui
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<MainWindow>();
+            services.AddTransient<BuildCommentsService>();
+            services.AddTransient<LoadCommentsService>();
+            services.AddTransient<LoadMemberService>();
+            services.AddTransient<OutputService>();
         }
     }
 }

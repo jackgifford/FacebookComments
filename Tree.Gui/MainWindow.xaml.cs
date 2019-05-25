@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,9 +30,10 @@ namespace Tree.Gui
         private readonly BuildCommentsService _buildComments;
 
         ///  State
-        private Comment[] _heads;
+        private IEnumerable<Comment> _heads;
 
-        public MainWindow(LoadCommentsService loadComments,
+        public MainWindow(
+            LoadCommentsService loadComments,
             LoadMemberService loadMembers,
             OutputService outputService,
             BuildCommentsService buildComments)
@@ -40,6 +42,10 @@ namespace Tree.Gui
             _loadMembers = loadMembers;
             _outputService = outputService;
             _buildComments = buildComments;
+
+            var tempPath = @"C:\Users\jack\source\repos\Tree\Tree\bin\Debug\netcoreapp2.1\names.csv";
+            _heads = _loadMembers.LoadMembers(tempPath);
+
             InitializeComponent();
         }
 
@@ -59,14 +65,32 @@ namespace Tree.Gui
                 filePath = dialog.FileName;
                 Calc.IsEnabled = true;
             }
-
         }
 
         private void Calc_Click(object sender, RoutedEventArgs e)
         {
-            var comments = _loadComments.LoadComments(filePath);
-            _buildComments.BuildComments(_heads, comments);
-            _outputService.Print(_heads, filePath, OutputService.PrintFormats.Html);
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "HTML Files (*.html)|*.html"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                var comments = _loadComments.LoadComments(filePath);
+                _buildComments.BuildComments(_heads, comments);
+
+                Stream fileStream;
+                if ((fileStream = dialog.OpenFile()) != null)
+                {
+                    _outputService.Print(_heads, fileStream, OutputService.PrintFormats.Html);
+                    Browser.Source = new Uri(@"file:///" + dialog.FileName);
+                    FilePath.Text = $"Data Saved: {dialog.FileName}";
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
         }
     }
 }

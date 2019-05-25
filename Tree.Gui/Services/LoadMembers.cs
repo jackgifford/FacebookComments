@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CsvHelper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,22 +12,20 @@ namespace Tree.Gui.Services
 {
     public class LoadMemberService : LoadDataService
     {
-        public void LoadMembers(string filePath)
+        public IEnumerable<Comment> LoadMembers(string filePath)
         {
-            var dataStream = new FileStream(filePath, FileMode.Open);
-            var recs = LoadFromStream<CsvObject>(dataStream);
-
-            var members = new Comment[recs.Count()];
-
-            // This is likely to get much more complicated.
-
-            // This sucks, see if foreach has an overload for adding an iterator
-            // python style.
-            int i = 0;
-            foreach (var rec in recs)
+            using (var sr = new StreamReader(filePath))
+            using (var cs = new CsvReader(sr))
             {
-                members[i] = MapHeads(rec);
-                i += 1;
+                var recs = cs.GetRecords<CsvObject>(); 
+                var list = new List<Comment>();
+
+                foreach (var rec in recs)
+                {
+                    list.Add(MapHeads(rec));
+                }
+
+                return list;
             }
         }
 
