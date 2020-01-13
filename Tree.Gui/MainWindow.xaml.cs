@@ -43,7 +43,8 @@ namespace Tree.Gui
             _outputService = outputService;
             _buildComments = buildComments;
 
-            var tempPath = @"C:\Users\jack\source\repos\Tree\Tree\bin\Debug\netcoreapp2.1\names.csv";
+            var tempPath = @"C:\Users\jack\Downloads\Myopia Profile posts\heads.csv";
+            //var tempPath = @"C:\Users\jack\source\repos\Tree\Tree\bin\Debug\netcoreapp2.1\names.csv";
             _heads = _loadMembers.LoadMembers(tempPath);
 
             InitializeComponent();
@@ -57,14 +58,17 @@ namespace Tree.Gui
             dialog.DefaultExt = ".csv";
             dialog.Filter = "CSV Files (*.csv)|*.csv";
 
-            var res = dialog.ShowDialog();
+            filePath = @"C:\Users\jack\Downloads\Myopia Profile posts\comments.csv";
+            Calc.IsEnabled = true;
 
-            if (res == true)
-            {
-                FilePath.Text = $"File Loaded: {dialog.FileName}";
-                filePath = dialog.FileName;
-                Calc.IsEnabled = true;
-            }
+            //var res = dialog.ShowDialog();
+
+            //if (res == true)
+            //{
+            //    FilePath.Text = $"File Loaded: {dialog.FileName}";
+            //    filePath = dialog.FileName;
+            //    Calc.IsEnabled = true;
+            //}
         }
 
         private void Calc_Click(object sender, RoutedEventArgs e)

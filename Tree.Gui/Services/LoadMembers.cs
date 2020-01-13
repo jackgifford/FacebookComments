@@ -33,7 +33,8 @@ namespace Tree.Gui.Services
         {
             var member = MapToMember(rec);
 
-            var regex = new Regex("([0-9]+)/$");
+            //var regex = new Regex("([0-9]+)/$");
+            var regex = new Regex("([0-9]+)");
 
             var idRegexr = regex.Matches(rec.Link);
             var id = idRegexr[0].Groups[1].Value;
